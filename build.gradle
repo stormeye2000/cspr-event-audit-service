@@ -13,9 +13,12 @@ repositories {
 }
 
 dependencies {
+	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.yaml:snakeyaml:${snakeyamlVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+	implementation "org.springdoc:springdoc-openapi-ui:${openapiUiVersion}"
+	implementation files('libs/casper-java-sdk-0.5.2-SNAPSHOT.jar')
 
 	developmentOnly "org.springframework.boot:spring-boot-devtools:${springBootVersion}"
 

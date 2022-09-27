@@ -1,1 +1,13 @@
+server:
+  port: 8080
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
 
+  application:
+    name: Casper Event Audit Service
+
+  data:
+    mongodb:
+      host: localhost:27017/cspr-event-audit
