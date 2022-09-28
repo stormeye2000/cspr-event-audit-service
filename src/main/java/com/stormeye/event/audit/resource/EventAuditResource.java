@@ -3,6 +3,7 @@ package com.stormeye.event.audit.resource;
 import com.stormeye.event.audit.service.EventAuditService;
 import com.stormeye.event.audit.service.EventStream;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import org.apache.commons.io.IOUtils;
@@ -20,7 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * The REST API for storing an obtaining events as JSON
+ * The REST API for storing an obtaining events as JSON.
  *
  * @author ian@meywood.com
  */
@@ -29,12 +30,11 @@ import java.io.IOException;
 @OpenAPIDefinition(
         info = @Info(
                 title = "Casper Event Audit REST API",
-                description = "The events REST APIs that match those of a cspr node event APIs. These APIs also allow for filtering of the streams\n" +
-                        " * via the use or a query parameter eg: http://localhost:8080/events/main?query=\"data.DeployProcessed.deploy_hash:2189c51773cf25d566c855ddd165418dace85bc61c40cff6270716c675787084,dataType:BlockAdded\"" +
+                description = "Stores a Obtains JSON representation of the Casper Java SDK com.casper.sdk.model.event.Event object." +
                         "For more information see  <a href='https://docs.casperlabs.io/dapp-dev-guide/building-dapps/monitoring-events/'><i>Monitoring and Consuming Events<i/></a>",
                 contact = @Contact(
                         name = "Stormeye2000",
-                        url = "https://github.com/stormeye2000/cspr-producer-audit"
+                        url = "https://github.com/stormeye2000/cspr-event-audit-service"
                 )
         )
 )
@@ -47,7 +47,15 @@ public class EventAuditResource {
         this.eventAuditService = eventAuditService;
     }
 
-    @PostMapping(value = "/audit", produces = MediaType.TEXT_PLAIN_VALUE)
+    /**
+     * Stores a JSON representation of ra aw {@link com.casper.sdk.model.event.Event}.
+     *
+     * @param request the request whose input stream the JSON will be read from
+     * @return the internal ID of the stored JSON event. Note this is not the event ID, but the ID that is created for
+     * the JSON when persisted
+     */
+    @PostMapping(value = "/audit", produces = MediaType.TEXT_PLAIN_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Stores a JSON representation of a com.casper.sdk.model.event.Event and returns it's internal storage ID")
     public ResponseEntity<String> saveEvent(final HttpServletRequest request) {
         try {
             final String id = eventAuditService.saveEvent(request.getInputStream());
@@ -58,12 +66,19 @@ public class EventAuditResource {
         }
     }
 
+    /**
+     * Obtains a JSON representation of a raw {@link com.casper.sdk.model.event.Event}. Using the internal ID that was generated
+     * when it was stored.
+     *
+     * @param id the internal ID of the JSON to obtain, not the ID of the event
+     */
     @GetMapping(value = "/audit/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "Obtains a JSON representation of a com.casper.sdk.model.event.Event using it's internal storage ID")
     private void getEvent(@PathVariable final String id, final HttpServletResponse response) throws IOException {
 
         logger.debug("getEvent({})", id);
 
-        final EventStream inputStream = eventAuditService.readEvent(id);
+        final EventStream inputStream = eventAuditService.getEventById(id);
         final ServletOutputStream outputStream = response.getOutputStream();
 
         response.setHeader(HttpHeaders.CONTENT_LENGTH, Long.toString(inputStream.getSize()));

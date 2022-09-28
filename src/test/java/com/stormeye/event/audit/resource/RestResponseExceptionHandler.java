@@ -14,9 +14,9 @@ import org.springframework.web.servlet.NoHandlerFoundException;
  * @author ian@meywood.com
  */
 @RestControllerAdvice
-public class RestResponseEntityExceptionHandler {
+public class RestResponseExceptionHandler {
 
-    public static final String INVALID_PATH_MSG = "invalid path: expected '/events/main', '/events/deploys' or '/events/sigs'";
+    private static final String INVALID_PATH_MSG = "invalid path: expected '/events/main', '/events/deploys' or '/events/sigs'";
 
     /**
      * When not handler is found for a URL this method provides a 404 status with an error message that matches the

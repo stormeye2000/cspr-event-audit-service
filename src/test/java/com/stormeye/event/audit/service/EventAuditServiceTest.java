@@ -60,6 +60,8 @@ class EventAuditServiceTest {
         assertThat(gridFSFile.getMetadata().getString("type"), is("main"));
         assertThat(gridFSFile.getMetadata().getString("dataType"), is("BlockAdded"));
         assertThat(gridFSFile.getMetadata().getLong("id"), is(65027303L));
+        assertThat(gridFSFile.getFilename(), is("/events/main/65027303.json"));
+        assertThat(gridFSFile.getMetadata().getString("version"), is("1.0.0"));
     }
 
     @Test
@@ -68,7 +70,7 @@ class EventAuditServiceTest {
         final InputStream in = EventAuditServiceTest.class.getResourceAsStream(JSON);
         final String id = eventAuditService.saveEvent(in);
 
-        final EventStream readJson = eventAuditService.readEvent(id);
+        final EventStream readJson = eventAuditService.getEventById(id);
         final byte[] readBytes = IOUtils.toByteArray(readJson);
 
         assertThat(readJson.getSize(), is((long) readBytes.length));
@@ -80,6 +82,7 @@ class EventAuditServiceTest {
         // Assert that the EventInfo can be obtained from the bytes stored in GridFS
         final EventInfo eventInfo = new ObjectMapper().readValue(readBytes, EventInfo.class);
 
+        assertThat(eventInfo.getId().isPresent(), is(true));
         assertThat(eventInfo.getId().get(), is(65027303L));
         assertThat(eventInfo.getSource(), is("http://65.21.235.219:9999"));
         assertThat(eventInfo.getEventType(), is("main"));

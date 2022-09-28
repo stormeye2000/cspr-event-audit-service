@@ -29,13 +29,10 @@ import java.util.UUID;
 public class EventAuditService {
 
     private static final String NOT_FOUND_MESSAGE = "Unable to find event with id ";
-    public static final String JSON = ".json";
 
     /** The JSON parser used to obtain the metadata from the events */
     private final ObjectMapper mapper = new ObjectMapper();
-
     private final Logger logger = LoggerFactory.getLogger(EventAuditService.class);
-
     private final GridFsOperations gridFsOperations;
 
     public EventAuditService(GridFsOperations gridFsOperations) {
@@ -52,16 +49,17 @@ public class EventAuditService {
     public String saveEvent(final InputStream eventStream) throws IOException {
 
         final byte[] bytes = IOUtils.toByteArray(eventStream);
-
         final EventInfo eventInfo = mapper.readValue(bytes, EventInfo.class);
+        final String filename = buildFilename(eventInfo);
 
-        logger.debug("Saving event: {}", eventInfo);
+        logger.debug("Saving event as : {}", filename);
 
         // Obtain the event ID
         final DBObject metadata = BasicDBObjectBuilder.start()
                 .append("type", eventInfo.getEventType())
                 .append("dataType", eventInfo.getDataType())
                 .append("source", eventInfo.getSource())
+                .append("version", eventInfo.getVersion())
                 .append("bytes", bytes.length)
                 .get();
 
@@ -70,12 +68,11 @@ public class EventAuditService {
 
         return gridFsOperations.store(
                 new ByteArrayInputStream(bytes),
-                buildFilename(eventInfo),
+                filename,
                 "application/json",
                 metadata
         ).toHexString();
     }
-
 
     /**
      * Obtains an input stream to a JSON Event from GridFS.
@@ -83,7 +80,7 @@ public class EventAuditService {
      * @param id of the GridFs file to obtain
      * @return the input stream to read the file from
      */
-    public EventStream readEvent(final String id) {
+    public EventStream getEventById(final String id) {
 
         logger.debug("reading event {}", id);
 
@@ -93,7 +90,7 @@ public class EventAuditService {
             throw new NotFoundException(NOT_FOUND_MESSAGE + id);
         }
 
-        GridFsResource resource = gridFsOperations.getResource(gridFsFile);
+        final GridFsResource resource = gridFsOperations.getResource(gridFsFile);
 
         if (!resource.exists()) {
             throw new NotFoundException(NOT_FOUND_MESSAGE + id);
@@ -102,11 +99,15 @@ public class EventAuditService {
     }
 
     private String buildFilename(final EventInfo eventInfo) {
-        if (eventInfo.getId().isPresent()) {
-            return eventInfo.getId().get() + JSON;
-        } else {
-            return "_" + UUID.randomUUID() + JSON;
-        }
+        return "/events/" + eventInfo.getEventType() + "/" + getUniqueId(eventInfo) + ".json";
     }
 
+    private String getUniqueId(final EventInfo eventInfo) {
+        if (eventInfo.getId().isPresent()) {
+            return Long.toString(eventInfo.getId().get());
+        } else {
+            // No ID provided on the event so generate one. This will only occur for ApiVersion events
+            return UUID.randomUUID().toString();
+        }
+    }
 }

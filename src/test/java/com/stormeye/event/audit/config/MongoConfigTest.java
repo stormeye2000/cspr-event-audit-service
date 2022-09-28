@@ -4,7 +4,6 @@ package com.stormeye.event.audit.config;
 import com.mongodb.client.MongoClient;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -18,6 +17,8 @@ import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
+ * Test for the Mongo Data Configuration.
+ *
  * @author ian@meywood.com
  */
 @SpringBootTest

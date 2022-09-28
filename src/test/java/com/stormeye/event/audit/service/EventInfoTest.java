@@ -7,10 +7,11 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.core.Is.is;
 
 /**
+ * Unit tests for loading an {@link EventInfo} from JSON.
+ *
  * @author ian@meywood.com
  */
 class EventInfoTest {
@@ -42,5 +43,10 @@ class EventInfoTest {
     void getId() {
         assertThat(eventInfo.getId().isPresent(), is(true));
         assertThat(eventInfo.getId().get(), is(65027303L));
+    }
+
+    @Test
+    void getVersion() {
+        assertThat(eventInfo.getVersion(), is("1.0.0"));
     }
 }
