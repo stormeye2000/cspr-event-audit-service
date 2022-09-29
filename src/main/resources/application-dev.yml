@@ -1,0 +1,15 @@
+logging:
+  level:
+    com:
+      casper: ${LOG_LEVEL:DEBUG}
+  file:
+    path: ${HOME}/event-audit.log
+
+spring:
+  data:
+    mongodb:
+      host: mongo-events-0.mongo-events-service:27017/casper-events,mongo-events-1.mongo-events-service:27017/casper-events
+      port: 27017
+
+server:
+  port: 8080

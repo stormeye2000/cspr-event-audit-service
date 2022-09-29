@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: event-audit-service
+  name: event-audit-service
+  namespace: kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-audit-service
+  template:
+    metadata:
+      labels:
+        app: event-audit-service
+    spec:
+      serviceAccount: kafka-account
+      containers:
+        - image: LOCATION-docker.pkg.dev/PROJECT_ID/REPOSITORY/IMAGE:TAG
+          imagePullPolicy: Always
+          name: event-audit-service
+          ports:
+            - containerPort: 8080

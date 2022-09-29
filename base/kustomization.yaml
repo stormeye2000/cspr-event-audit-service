@@ -1,0 +1,6 @@
+commonLabels:
+  app: event-audit-service
+
+resources:
+  - deployment.yaml
+  - service.yaml

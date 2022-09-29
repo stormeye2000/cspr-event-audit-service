@@ -12,6 +12,10 @@ repositories {
 	mavenCentral()
 }
 
+bootJar {
+	archiveFileName = "event-audit-service.jar"
+}
+
 dependencies {
 	implementation "commons-io:commons-io:${commonsIoVersion}"
 	implementation "org.yaml:snakeyaml:${snakeyamlVersion}"
